@@ -92,11 +92,23 @@ with tab2:
     else:
         st.write("Selecciona al menos un nadador para ver los detalles.")
 
-# Resumen general (solo si no hay filtros)
+# Ranking general por estilo y prueba basado en Tiempo Total
 if not nadadores:
-    st.subheader("Resumen General por Estilo")
-    df["Parametro"] = df["Parametro"].map(param_translation).fillna(df["Parametro"])
-    fig = px.histogram(df, x="Estilo", color="Parametro")
-    st.plotly_chart(fig, use_container_width=True)
+    st.subheader("🏆 Ranking de Nadadores por Estilo y Prueba (Tiempo Total)")
+    tiempo_total_df = df[df.Parametro == "T TOTAL"].copy()
+    tiempo_total_df = tiempo_total_df.dropna(subset=["Valor"])
+    grouped = tiempo_total_df.groupby(["Estilo", "Distancia", "Nadador"], as_index=False)["Valor"].min()
+    grouped_sorted = grouped.sort_values(by=["Estilo", "Distancia", "Valor"])
+
+    for (estilo, distancia), group in grouped_sorted.groupby(["Estilo", "Distancia"]):
+        st.markdown(f"### {estilo} - {distancia}m")
+        fig = px.bar(group,
+                     x="Nadador",
+                     y="Valor",
+                     color="Nadador",
+                     title=f"Ranking por Tiempo Total - {estilo} {distancia}m",
+                     labels={"Valor": "Tiempo Total (seg)"})
+        st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(group, use_container_width=True)
 
 
