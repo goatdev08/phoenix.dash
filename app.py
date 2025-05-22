@@ -69,7 +69,7 @@ with tab1:
             for parametro in selected_in_category:
                 nombre_legible = param_translation.get(parametro, parametro)
                 param_df = filtered_df[filtered_df.Parametro == parametro]
-                fig = px.line(param_df, x="Cat_Prueba"  # se muestra como 'Fase', y="Valor", color="Nadador",
+                fig = px.line(param_df, x="Cat_Prueba", y="Valor", color="Nadador",
                               markers=True, facet_col=None, line_group="Nadador",
                               category_orders={"Cat_Prueba": ["Preliminar", "Semifinal", "Final"]},
                               title=f"{nombre_legible} por Fase")
@@ -109,6 +109,7 @@ if not nadadores:
         fig.update_layout(showlegend=False, margin=dict(t=50, b=50), height=400 if is_mobile else 600)
         st.plotly_chart(fig, use_container_width=True)
         st.dataframe(group, use_container_width=True, height=300 if is_mobile else 500)
+
 
 
 
