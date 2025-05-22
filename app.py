@@ -47,10 +47,26 @@ st.title("Dashboard de Competencia de Natación 🏊")
 with st.sidebar:
     st.title("Filtros")
     nadadores = st.multiselect("Selecciona hasta 4 nadadores:", df.Nadador.unique(), max_selections=4)
-    estilos = st.multiselect("Selecciona estilo(s):", df.Estilo.unique())
-    pruebas = st.multiselect("Selecciona prueba(s):", df.Distancia.unique())
-    etapas = st.multiselect("Selecciona etapa(s):", df.Cat_Prueba.unique())
-    parametros = st.multiselect("Selecciona parámetro(s):", df.Parametro.unique())
+
+    if st.checkbox("Seleccionar todos los estilos"):
+        estilos = df.Estilo.unique().tolist()
+    else:
+        estilos = st.multiselect("Selecciona estilo(s):", df.Estilo.unique())
+
+    if st.checkbox("Seleccionar todas las pruebas"):
+        pruebas = df.Distancia.unique().tolist()
+    else:
+        pruebas = st.multiselect("Selecciona prueba(s):", df.Distancia.unique())
+
+    if st.checkbox("Seleccionar todas las etapas"):
+        etapas = df.Cat_Prueba.unique().tolist()
+    else:
+        etapas = st.multiselect("Selecciona etapa(s):", df.Cat_Prueba.unique())
+
+    if st.checkbox("Seleccionar todos los parámetros"):
+        parametros = df.Parametro.unique().tolist()
+    else:
+        parametros = st.multiselect("Selecciona parámetro(s):", df.Parametro.unique())
 
 # Filtrado del DataFrame
 filtered_df = df[df.Nadador.isin(nadadores) &
@@ -110,5 +126,6 @@ if not nadadores:
                      labels={"Valor": "Tiempo Total (seg)"})
         st.plotly_chart(fig, use_container_width=True)
         st.dataframe(group, use_container_width=True)
+
 
 
