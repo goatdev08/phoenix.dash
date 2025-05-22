@@ -68,8 +68,7 @@ with tab1:
         if selected_in_category:
             with st.container():
                 st.markdown(f"### {category}")
-                col1, col2 = st.columns(2)
-                for i, parametro in enumerate(selected_in_category):
+                for parametro in selected_in_category:
                     nombre_legible = param_translation.get(parametro, parametro)
                     param_df = filtered_df[filtered_df.Parametro == parametro]
                     fig = px.line(param_df,
@@ -81,7 +80,7 @@ with tab1:
                                   line_group="Nadador",
                                   category_orders={"Cat_Prueba": ["Preliminar", "Semifinal", "Final"]},
                                   title=f"{nombre_legible} por Etapa")
-                    (col1 if i % 2 == 0 else col2).plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, use_container_width=True)
 
 with tab2:
     if nadadores:
@@ -99,6 +98,5 @@ if not nadadores:
     df["Parametro"] = df["Parametro"].map(param_translation).fillna(df["Parametro"])
     fig = px.histogram(df, x="Estilo", color="Parametro")
     st.plotly_chart(fig, use_container_width=True)
-    fig = px.histogram(df, x="Estilo", color="Parametro")
-    st.plotly_chart(fig, use_container_width=True)
+
 
