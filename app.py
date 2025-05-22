@@ -69,7 +69,7 @@ with tab1:
             for parametro in selected_in_category:
                 nombre_legible = param_translation.get(parametro, parametro)
                 param_df = filtered_df[filtered_df.Parametro == parametro]
-                for estilo in param_df.Estilo.unique():
+                    for estilo in param_df.Estilo.unique():
     estilo_df = param_df[param_df.Estilo == estilo]
     fig = px.line(estilo_df, x="Cat_Prueba", y="Valor", color="Nadador",
                   markers=True, line_group="Nadador",
