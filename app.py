@@ -1,6 +1,18 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
+import platform
+
+# Detectar si es un dispositivo móvil
+is_mobile = False
+try:
+    from streamlit_javascript import st_javascript
+    user_agent = st_javascript("window.navigator.userAgent")
+    if user_agent and ("Android" in user_agent or "iPhone" in user_agent or "iPad" in user_agent):
+        is_mobile = True
+except:
+    pass
 
 # Cargar los datos
 @st.cache_data
@@ -42,6 +54,7 @@ param_categories = {
 
 st.set_page_config(layout="wide")
 st.title("Phoenix Team Analyst 🐦‍🔥")
+
 # Sidebar con filtros
 with st.sidebar:
     st.title("Filtros")
@@ -95,6 +108,13 @@ with tab1:
                                   line_group="Nadador",
                                   category_orders={"Cat_Prueba": ["Preliminar", "Semifinal", "Final"]},
                                   title=f"{nombre_legible} por Etapa")
+                    fig.update_layout(legend=dict(
+                        orientation="h" if is_mobile else "v",
+                        yanchor="top",
+                        y=1.15 if is_mobile else 1,
+                        xanchor="left",
+                        x=0
+                    ))
                     st.plotly_chart(fig, use_container_width=True)
 
 with tab2:
@@ -103,7 +123,7 @@ with tab2:
             st.markdown(f"#### {nadador}")
             sub_df = filtered_df[filtered_df.Nadador == nadador].copy()
             sub_df["Parametro"] = sub_df["Parametro"].map(param_translation).fillna(sub_df["Parametro"])
-            st.dataframe(sub_df, use_container_width=True)
+            st.dataframe(sub_df, use_container_width=True, height=300 if is_mobile else 600)
     else:
         st.write("Selecciona al menos un nadador para ver los detalles.")
 
@@ -113,6 +133,11 @@ if not nadadores:
     tiempo_total_df = df[df.Parametro == "T TOTAL"].copy()
     tiempo_total_df = tiempo_total_df.dropna(subset=["Valor"])
     grouped = tiempo_total_df.groupby(["Estilo", "Distancia", "Nadador"], as_index=False)["Valor"].min()
+
+    # Reducción de nombres si está en móvil
+    if is_mobile:
+        grouped["Nadador"] = grouped["Nadador"].apply(lambda x: f"{x.split()[0][0]}. {x.split()[-1]}")
+
     grouped_sorted = grouped.sort_values(by=["Estilo", "Distancia", "Valor"])
 
     for (estilo, distancia), group in grouped_sorted.groupby(["Estilo", "Distancia"]):
@@ -123,7 +148,9 @@ if not nadadores:
                      color="Nadador",
                      title=f"Ranking por Tiempo Total - {estilo} {distancia}m",
                      labels={"Valor": "Tiempo Total (seg)"})
+        fig.update_layout(showlegend=False)
         st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(group, use_container_width=True, height=300 if is_mobile else 500)
         st.dataframe(group, use_container_width=True)
 
 
