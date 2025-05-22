@@ -41,8 +41,7 @@ param_categories = {
 }
 
 st.set_page_config(layout="wide")
-st.title("Dashboard de Competencia de Natación 🏊")
-
+st.title("Phoenix Team Analyst 🐦‍🔥")
 # Sidebar con filtros
 with st.sidebar:
     st.title("Filtros")
