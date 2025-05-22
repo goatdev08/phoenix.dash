@@ -44,12 +44,13 @@ st.set_page_config(layout="wide")
 st.title("Dashboard de Competencia de Natación 🏊")
 
 # Sidebar con filtros
-st.sidebar.title("Filtros")
-nadadores = st.sidebar.multiselect("Selecciona hasta 4 nadadores:", df.Nadador.unique(), max_selections=4)
-estilos = st.sidebar.multiselect("Selecciona estilo(s):", df.Estilo.unique())
-pruebas = st.sidebar.multiselect("Selecciona prueba(s):", df.Distancia.unique())
-etapas = st.sidebar.multiselect("Selecciona etapa(s):", df.Cat_Prueba.unique())
-parametros = st.sidebar.multiselect("Selecciona parámetro(s):", df.Parametro.unique())
+with st.sidebar:
+    st.title("Filtros")
+    nadadores = st.multiselect("Selecciona hasta 4 nadadores:", df.Nadador.unique(), max_selections=4)
+    estilos = st.multiselect("Selecciona estilo(s):", df.Estilo.unique())
+    pruebas = st.multiselect("Selecciona prueba(s):", df.Distancia.unique())
+    etapas = st.multiselect("Selecciona etapa(s):", df.Cat_Prueba.unique())
+    parametros = st.multiselect("Selecciona parámetro(s):", df.Parametro.unique())
 
 # Filtrado del DataFrame
 filtered_df = df[df.Nadador.isin(nadadores) &
@@ -59,37 +60,36 @@ filtered_df = df[df.Nadador.isin(nadadores) &
                  df.Parametro.isin(parametros)]
 
 # Tabs para organización visual
-tab1, tab2 = st.tabs(["Gráficos Comparativos", "Detalles por Nadador"])
+tab1, tab2 = st.tabs(["📊 Gráficos Comparativos", "📋 Detalles por Nadador"])
 
 with tab1:
     for category, param_list in param_categories.items():
         selected_in_category = [p for p in param_list if p in filtered_df.Parametro.unique()]
         if selected_in_category:
-            st.markdown(f"### {category}")
-            for parametro in selected_in_category:
-                nombre_legible = param_translation.get(parametro, parametro)
-                st.subheader(f"Comparación del parámetro: {nombre_legible}")
-                param_df = filtered_df[filtered_df.Parametro == parametro]
-                fig = px.line(param_df, 
-                              x="Cat_Prueba", 
-                              y="Valor", 
-                              color="Nadador",
-                              markers=True,
-                              facet_col="Estilo",
-                              line_group="Nadador",
-                              category_orders={"Cat_Prueba": ["Preliminar", "Semifinal", "Final"]},
-                              title=f"{nombre_legible} por Etapa")
-                st.plotly_chart(fig, use_container_width=True)
+            with st.container():
+                st.markdown(f"### {category}")
+                col1, col2 = st.columns(2)
+                for i, parametro in enumerate(selected_in_category):
+                    nombre_legible = param_translation.get(parametro, parametro)
+                    param_df = filtered_df[filtered_df.Parametro == parametro]
+                    fig = px.line(param_df,
+                                  x="Cat_Prueba",
+                                  y="Valor",
+                                  color="Nadador",
+                                  markers=True,
+                                  facet_col="Estilo",
+                                  line_group="Nadador",
+                                  category_orders={"Cat_Prueba": ["Preliminar", "Semifinal", "Final"]},
+                                  title=f"{nombre_legible} por Etapa")
+                    (col1 if i % 2 == 0 else col2).plotly_chart(fig, use_container_width=True)
 
 with tab2:
     if nadadores:
-        cols = st.columns(len(nadadores))
-        for idx, nadador in enumerate(nadadores):
-            with cols[idx]:
-                st.markdown(f"#### {nadador}")
-                sub_df = filtered_df[filtered_df.Nadador == nadador]
-                sub_df["Parametro"] = sub_df["Parametro"].map(param_translation).fillna(sub_df["Parametro"])
-                st.dataframe(sub_df, use_container_width=True)
+        for nadador in nadadores:
+            st.markdown(f"#### {nadador}")
+            sub_df = filtered_df[filtered_df.Nadador == nadador].copy()
+            sub_df["Parametro"] = sub_df["Parametro"].map(param_translation).fillna(sub_df["Parametro"])
+            st.dataframe(sub_df, use_container_width=True)
     else:
         st.write("Selecciona al menos un nadador para ver los detalles.")
 
@@ -97,6 +97,8 @@ with tab2:
 if not nadadores:
     st.subheader("Resumen General por Estilo")
     df["Parametro"] = df["Parametro"].map(param_translation).fillna(df["Parametro"])
+    fig = px.histogram(df, x="Estilo", color="Parametro")
+    st.plotly_chart(fig, use_container_width=True)
     fig = px.histogram(df, x="Estilo", color="Parametro")
     st.plotly_chart(fig, use_container_width=True)
 
