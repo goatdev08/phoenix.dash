@@ -1,19 +1,14 @@
-import streamlit as st
-st.set_page_config(layout="wide")
+mport streamlit as st
+st.set_page_config(layout="wide")  # 👈 DEBE SER LA PRIMERA LLAMADA DE STREAMLIT
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import platform
 
-# Detectar si es un dispositivo móvil
-is_mobile = False
-try:
-    from streamlit_javascript import st_javascript
-    user_agent = st_javascript("window.navigator.userAgent")
-    if user_agent and ("Android" in user_agent or "iPhone" in user_agent or "iPad" in user_agent):
-        is_mobile = True
-except:
-    pass
+# Config manual para vista móvil/tablet si se necesita
+view_mode = st.sidebar.radio("Modo de visualización", ["Escritorio", "Móvil / Tablet"])
+is_mobile = view_mode == "Móvil / Tablet"
 
 # Cargar los datos
 @st.cache_data
@@ -45,14 +40,6 @@ param_translation = {
     "DIST x BRZ": "Distancia por Brazada",
     "F2": "Flechas (2)",
     "F promedio": "Promedio Metros en Flecha"
-}
-
-# Categorías de parámetros
-param_categories = {
-    "Tiempo": ["T15 (1)", "T25 (1)", "T15 (2)", "T25 (2)", "T TOTAL"],
-    "Brazadas": ["# de BRZ 1", "# de BRZ 2", "BRZ TOTAL", "DIST x BRZ"],
-    "Velocidad": ["V1", "V2", "V promedio"],
-    "Flechas": ["F1", "F2", "F promedio", "DIST sin F"]
 }
 
 st.set_page_config(layout="wide")
