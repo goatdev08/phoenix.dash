@@ -1,10 +1,9 @@
 import streamlit as st
+st.set_page_config(layout="wide")
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import platform
-
-st.set_page_config(layout="wide")  # ✅ Esta línea ahora está primero
 
 # Detectar si es un dispositivo móvil
 is_mobile = False
