@@ -5,6 +5,8 @@ import plotly.graph_objects as go
 import platform
 
 # Detectar si es un dispositivo móvil
+st.set_page_config(layout="wide")
+
 is_mobile = False
 try:
     from streamlit_javascript import st_javascript
@@ -13,7 +15,7 @@ try:
         is_mobile = True
 except:
     pass
-
+    
 # Cargar los datos
 @st.cache_data
 def load_data():
