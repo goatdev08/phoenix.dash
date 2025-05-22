@@ -48,7 +48,7 @@ if st.sidebar.checkbox("Seleccionar todas las pruebas"):
 else:
     pruebas = st.sidebar.multiselect("Prueba(s):", df.Distancia.unique())
 if st.sidebar.checkbox("Seleccionar todas las etapas"):
-    etapas = df.Cat_Prueba.unique().tolist()
+    etapas = df.Fase.unique().tolist()
 else:
     etapas = st.sidebar.multiselect("Etapa(s):", df.Cat_Prueba.unique())
 if st.sidebar.checkbox("Seleccionar todos los parámetros"):
@@ -70,12 +70,16 @@ with tab1:
                 nombre_legible = param_translation.get(parametro, parametro)
                 param_df = filtered_df[filtered_df.Parametro == parametro]
                 fig = px.line(param_df, x="Cat_Prueba", y="Valor", color="Nadador",
-                              markers=True, facet_col="Estilo", line_group="Nadador",
+                              markers=True, facet_col=None, line_group="Nadador",
                               category_orders={"Cat_Prueba": ["Preliminar", "Semifinal", "Final"]},
                               title=f"{nombre_legible} por Etapa")
-                fig.update_layout(legend=dict(orientation="h" if is_mobile else "v",
-                                              yanchor="top", y=1.15 if is_mobile else 1,
-                                              xanchor="left", x=0))
+                fig.update_layout(legend=dict(
+    orientation="h",
+    yanchor="bottom",
+    y=-0.3,
+    xanchor="center",
+    x=0.5
+))
                 st.plotly_chart(fig, use_container_width=True)
 
 with tab2:
@@ -102,7 +106,7 @@ if not nadadores:
         fig = px.bar(group, x="Nadador", y="Valor", color="Nadador",
                      title=f"Ranking por Tiempo Total - {estilo} {distancia}m",
                      labels={"Valor": "Tiempo Total (seg)"})
-        fig.update_layout(showlegend=False)
+        fig.update_layout(showlegend=False, margin=dict(t=50, b=50), height=400 if is_mobile else 600)
         st.plotly_chart(fig, use_container_width=True)
         st.dataframe(group, use_container_width=True, height=300 if is_mobile else 500)
 
