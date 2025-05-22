@@ -4,9 +4,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 import platform
 
-# Detectar si es un dispositivo móvil
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide")  # ✅ Esta línea ahora está primero
 
+# Detectar si es un dispositivo móvil
 is_mobile = False
 try:
     from streamlit_javascript import st_javascript
@@ -15,7 +15,7 @@ try:
         is_mobile = True
 except:
     pass
-    
+
 # Cargar los datos
 @st.cache_data
 def load_data():
@@ -23,6 +23,8 @@ def load_data():
     df.columns = [col.strip().replace("/", "").replace(" ", "_") for col in df.columns]
     df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce")
     return df
+
+# (El resto del código permanece igual desde aquí en adelante)
 
 df = load_data()
 
