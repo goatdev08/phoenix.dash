@@ -7,18 +7,21 @@ import plotly.express as px
 def load_data():
     df = pd.read_csv("archivo.csv")  # Reemplaza con el nombre real si es distinto
     df.columns = [col.strip().replace("/", "").replace(" ", "_") for col in df.columns]
+    df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce")
     return df
 
 df = load_data()
 
+st.set_page_config(layout="wide")
 st.title("Dashboard de Competencia de Natación 🏊")
 
-# Filtros
-nadadores = st.multiselect("Selecciona hasta 4 nadadores:", df.Nadador.unique(), max_selections=4)
-estilos = st.multiselect("Selecciona estilo(s):", df.Estilo.unique())
-pruebas = st.multiselect("Selecciona prueba(s):", df.Distancia.unique())
-etapas = st.multiselect("Selecciona etapa(s):", df.Cat_Prueba.unique())
-parametros = st.multiselect("Selecciona parámetro(s):", df.Parametro.unique())
+# Sidebar con filtros
+st.sidebar.title("Filtros")
+nadadores = st.sidebar.multiselect("Selecciona hasta 4 nadadores:", df.Nadador.unique(), max_selections=4)
+estilos = st.sidebar.multiselect("Selecciona estilo(s):", df.Estilo.unique())
+pruebas = st.sidebar.multiselect("Selecciona prueba(s):", df.Distancia.unique())
+etapas = st.sidebar.multiselect("Selecciona etapa(s):", df.Cat_Prueba.unique())
+parametros = st.sidebar.multiselect("Selecciona parámetro(s):", df.Parametro.unique())
 
 # Filtrado del DataFrame
 filtered_df = df[df.Nadador.isin(nadadores) &
@@ -27,23 +30,36 @@ filtered_df = df[df.Nadador.isin(nadadores) &
                  df.Cat_Prueba.isin(etapas) &
                  df.Parametro.isin(parametros)]
 
-# Mostrar tabla
-st.subheader("Datos Filtrados")
-st.dataframe(filtered_df)
+# Tabs para organización visual
+tab1, tab2 = st.tabs(["Gráficos Comparativos", "Detalles por Nadador"])
 
-# Gráficos por parámetro
-for parametro in parametros:
-    st.subheader(f"Comparación del parámetro: {parametro}")
-    param_df = filtered_df[filtered_df.Parametro == parametro]
-    fig = px.line(param_df, 
-                  x="Cat_Prueba", 
-                  y="Valor", 
-                  color="Nadador",
-                  markers=True,
-                  title=f"{parametro} por Etapa")
-    st.plotly_chart(fig, use_container_width=True)
+with tab1:
+    for parametro in filtered_df.Parametro.unique():
+        st.subheader(f"Comparación del parámetro: {parametro}")
+        param_df = filtered_df[filtered_df.Parametro == parametro]
+        fig = px.line(param_df, 
+                      x="Cat_Prueba", 
+                      y="Valor", 
+                      color="Nadador",
+                      markers=True,
+                      facet_col="Estilo",
+                      line_group="Nadador",
+                      category_orders={"Cat_Prueba": ["Preliminar", "Semifinal", "Final"]},
+                      title=f"{parametro} por Etapa")
+        st.plotly_chart(fig, use_container_width=True)
 
-# Resumen general (solo si no hay filtros para diversión)
+with tab2:
+    if nadadores:
+        cols = st.columns(len(nadadores))
+        for idx, nadador in enumerate(nadadores):
+            with cols[idx]:
+                st.markdown(f"#### {nadador}")
+                sub_df = filtered_df[filtered_df.Nadador == nadador]
+                st.dataframe(sub_df, use_container_width=True)
+    else:
+        st.write("Selecciona al menos un nadador para ver los detalles.")
+
+# Resumen general (solo si no hay filtros)
 if not nadadores:
     st.subheader("Resumen General por Estilo")
     fig = px.histogram(df, x="Estilo", color="Parametro")
