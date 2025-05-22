@@ -69,20 +69,20 @@ with tab1:
             for parametro in selected_in_category:
                 nombre_legible = param_translation.get(parametro, parametro)
                 param_df = filtered_df[filtered_df.Parametro == parametro]
-                    for estilo in param_df.Estilo.unique():
-    estilo_df = param_df[param_df.Estilo == estilo]
-    fig = px.line(estilo_df, x="Cat_Prueba", y="Valor", color="Nadador",
+                for estilo in param_df.Estilo.unique():
+                    estilo_df = param_df[param_df.Estilo == estilo]
+                    fig = px.line(estilo_df, x="Cat_Prueba", y="Valor", color="Nadador",
                   markers=True, line_group="Nadador",
                   category_orders={"Cat_Prueba": ["Preliminar", "Semifinal", "Final"]},
                   title=f"{nombre_legible} por Fase - Estilo: {estilo}")
-    fig.update_layout(legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=-0.3,
-        xanchor="center",
-        x=0.5
-    ))
-    st.plotly_chart(fig, use_container_width=True)
+                        fig.update_layout(legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=-0.3,
+                        xanchor="center",
+                        x=0.5
+                    ))
+                    st.plotly_chart(fig, use_container_width=True)
                 fig.update_layout(legend=dict(
     orientation="h",
     yanchor="bottom",
